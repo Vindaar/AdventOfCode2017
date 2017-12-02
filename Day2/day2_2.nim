@@ -6,22 +6,18 @@ import unittest
 proc calc_sum_divide[T](data: openArray[T]): int =
   # proc to calc the sum of evenly divisible numbers in each line
 
-  # iterate over lines and, do ugly parsing
+  # parse the input data
   var rows: seq[seq[int]] = newSeq[seq[int]](len(data))
   for i, row in data:
-    var r: seq[int] = @[]
-    let els = row.split()
-    for el in els:
-      r.add(parseInt(el))
-    rows[i] = r
+    rows[i] = row.split().map(parseInt)
 
-  let nums = foldl(mapIt(rows,
-                         foldl(filterIt(map(it,
-                                    (num: int) -> seq[int] => filterIt(it,
-                                                                       num mod it == 0)),
-                                  len(it) > 1)[0],
-                         if a div b > 0: a div b else: b div a)),
-                   a + b)
+  result = foldl(mapIt(rows,
+                       foldl(filterIt(map(it,
+                                      (num: int) -> seq[int] => filterIt(it,
+                                                                         num mod it == 0)),
+                                      len(it) > 1)[0],
+                             if a div b > 0: a div b else: b div a)),
+                 a + b)
 
   # classic version:
   #[
@@ -38,9 +34,6 @@ proc calc_sum_divide[T](data: openArray[T]): int =
     val += value
   ]#
     
-  echo "The resulting checksum is = ", nums
-  result = nums
-
 proc run_tests() =
   const data1_1 = split("""5 9 2 8
 9 4 7 3
@@ -51,7 +44,7 @@ proc run_input() =
   # read input at compile time
   const datfile = "input.txt"
   const data = split(strip(slurp(datfile)), "\n")
-  discard calc_sum_divide(data)
+  echo "The resulting checksum is = ", calc_sum_divide(data)
   
 proc main() =
   run_tests()
