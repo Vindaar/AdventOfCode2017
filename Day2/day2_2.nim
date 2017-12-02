@@ -2,7 +2,6 @@ import sequtils
 import strutils
 import future
 import unittest
-import zero_functional
 
 proc calc_sum_divide[T](data: openArray[T]): int =
   # proc to calc the sum of evenly divisible numbers in each line
