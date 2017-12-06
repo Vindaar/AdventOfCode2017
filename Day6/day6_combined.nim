@@ -10,13 +10,12 @@ proc calc_mem_redist(data: seq[int], part2 = false): (int, int) =
     # a hashset to store strings of memory layouts for comparison, ordered to
     # recover period of loop
     hashes: OrderedSet[string] = initOrderedSet[string]()
-    # counter for part 1 until duplicate entry
-    count = 0
     # string representation of current string to add to hashset
-    mem_str: string = ""
-    
+    mem_str: string = foldl(mem, ($a & " ") & $b, "")
+
+  # add starting hash as first hash 
+  hashes.incl(mem_str)
   while true:
-    inc count
     # get max value of memory 
     let max_val = max(mem)
     # and find corresopnding index
@@ -44,7 +43,7 @@ proc calc_mem_redist(data: seq[int], part2 = false): (int, int) =
   # from the hash set (convert it to sequence and use find) and subtracting this
   # from the length of the hash set
   let count_since = len(hashes) - find(toSeq(items(hashes)), mem_str)
-  result = (count, count_since)
+  result = (len(hashes), count_since)
 
 proc run_tests() =
   const memory = "2 4 1 2"
