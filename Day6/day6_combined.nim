@@ -52,11 +52,12 @@ proc run_tests() =
   check: calc_mem_redist(ls) == (5, 4)
 
 proc run_input() =
+
+  let t0 = cpuTime()      
   const input = "input.txt"
   const memory = slurp(input)
-  var ls: seq[int] = mapIt(filterIt(mapIt(split(strip(memory), " "), $it), len(it) > 0), parseInt($it))
+  var ls: seq[int] = mapIt(split(strip(memory), " "), parseInt($it))
   
-  let t0 = cpuTime()
   let (p1, p2) = calc_mem_redist(ls)
   echo "(Part 1): Number of possible redistributions until loop = ", p1
   echo "(Part 2): Period of loop = ", p2
