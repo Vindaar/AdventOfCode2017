@@ -24,7 +24,7 @@ proc firewall_seen(zipped: seq[tuple[a, b: int]], delay = 0): bool =
 
 proc calc_delay_unseen(zipped: seq[tuple[a, b:int]], delay = 0): int =
   # proc to calculate the delay to traverse without being seen
-  if firewall_seen(zipped, delay) == true:
+  if firewall_seen(zipped, delay):
     result = calc_delay_unseen(zipped, delay + 1)
   else:
     result = delay
