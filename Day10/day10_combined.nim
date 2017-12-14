@@ -35,7 +35,7 @@ proc calc_hash_round(s, input: seq[int], skip_size: var int, pos: var int): seq[
     pos = (pos + l + skip_size) mod len(result)
     inc skip_size
   
-proc calc_knot_hash(s: seq[int], input: string): string =
+proc calc_knot_hash*(s: seq[int], input: string): string =
   var
     # mutable copy
     sparse_hash = s
