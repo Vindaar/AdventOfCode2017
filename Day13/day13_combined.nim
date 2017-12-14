@@ -19,15 +19,12 @@ proc calc_firewall_severity(zipped: seq[tuple[a, b: int]]): int =
 proc firewall_seen(zipped: seq[tuple[a, b: int]], delay = 0): bool =
   # proc to check whether we're seen with the current delay
   let seen = any(zipped) do (x: tuple[a, b: int]) -> bool:
-    if (x.a + delay) mod (2 * (x.b - 1)) == 0:
-      true
-    else:
-      false
+    result = (x.a + delay) mod (2 * (x.b - 1)) == 0
   result = seen
 
 proc calc_delay_unseen(zipped: seq[tuple[a, b:int]], delay = 0): int =
   # proc to calculate the delay to traverse without being seen
-  if firewall_seen(zipped, delay) == true:
+  if firewall_seen(zipped, delay):
     result = calc_delay_unseen(zipped, delay + 1)
   else:
     result = delay
