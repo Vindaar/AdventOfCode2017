@@ -1,0 +1,108 @@
+OMFG, sub and -val... NOOOO
+
+|    | op  | reg |     val | jump to | notes                                                                     |
+|----+-----+-----+---------+---------+---------------------------------------------------------------------------|
+|  1 | set | b   |      99 |         | b = 99                                                                    |
+|  2 | set | c   |       b |         | c = 99                                                                    |
+|  3 | jnz | a   |       2 |       5 | a == 1 -> skip next line                                                  |
+|  4 | jnz | 1   |       5 |       9 | will never happen in part 2                                               |
+|  5 | mul | b   |     100 |         | b = 99 * 100 = 9,900                                                      |
+|  6 | sub | b   | -100000 |         | b = 9,900 - 100000 = -90100                                               |
+|  7 | set | c   |       b |         | c = -90100                                                                |
+|  8 | sub | c   |  -17000 |         | c = -90100 - 17000 = -107100                                              |
+|    |     |     |         |         | from here Loop 3                                                          |
+|  9 | set | f   |       1 |         | f = 1                                                                     |
+| 10 | set | d   |       2 |         | d = 2                                                                     |
+|    |     |     |         |         | from here Loop 2                                                          |
+| 11 | set | e   |       2 |         | e = 2                                                                     |
+|    |     |     |         |         | from here Loop 1                                                          |
+| 12 | set | g   |       d |         | g = 2                                                                     |
+| 13 | mul | g   |       e |         | g * e = 4, if g == b, then will g == 0                                    |
+| 14 | sub | g   |       b |         | g = 4 - -90100 = 90104, need g == b, if so, g == 0                        |
+| 15 | jnz | g   |       2 |      17 | if g != 0, skip setting f to 0, important happens                         |
+| 16 | set | f   |       0 |         | if reached, f == 0, f != 0 causes h NOT to change                         |
+| 17 | sub | e   |      -1 |         | e = 1 if e + 1 == b -> g == 0, might change h                             |
+| 18 | set | g   |       e |         | g = 1 if e == b -> g == 0 might change h                                  |
+| 19 | sub | g   |       b |         | g = 1 - -90100 = 90101, if g == b, g == 0, might change h                 |
+| 20 | jnz | g   |      -8 |      12 | if g != 0, jump back, g == 0, might change h                              |
+|    |     |     |         |         | Loop 1: to here: effects: e - 1, g = (e - b),                             |
+|    |     |     |         |         | EITHER 2 * e == 90100, e == 45050,won't happen, because e will            |
+|    |     |     |         |         | become negative OR: g == -90100, due to e == -90100 -> jump over jnz g -8 |
+|    |     |     |         |         | result: f = 1, e = -90100, g = 0                                          |
+| 21 | sub | d   |      -1 |         | d = 1, sub from d, if d + 1 == b -> will change h!                        |
+| 22 | set | g   |       d |         | g = 1, if d == b -> will change h!                                        |
+| 23 | sub | g   |       b |         | g = 1 - 90100 = 90101, if g == b -> change h!                             |
+| 24 | jnz | g   |     -13 |      11 | if g != 0, jump back, g == 0 -> change h!                                 |
+|    |     |     |         |         | Loop 2: to here loops unil g = -90100 again, due to d = -90100, same      |
+|    |     |     |         |         | as loop 1 above basically.                                                |
+|    |     |     |         |         | result:                                                                   |
+| 25 | jnz | f   |       2 |      27 | question: how many times on 1000 iters will f == 0?                       |
+| 26 | sub | h   |      -1 |         |                                                                           |
+| 27 | set | g   |       b |         | if b == c -> g == c -> finish program                                     |
+| 28 | sub | g   |       c |         | if g == c -> g == 0 -> finish program                                     |
+| 29 | jnz | g   |       2 |      31 | if g == 0 -> no jump over next line -> finish program                     |
+| 30 | jnz | 1   |       3 |      33 | finishes program                                                          |
+| 31 | sub | b   |     -17 |         | causes 1000 iterations of code above (from set f 1), because once         |
+|    |     |     |         |         | b == c, we break from program, c and b start at c = -107100, b = -90100,  |
+|    |     |     |         |         | by calc b = b - 17, we need 1000 iterations to get there                  |
+| 32 | jnz | 1   |     -23 |       9 | to here: Loop 3                                                           |
+
+The inner most loop:
+ - starts at setup:
+   #+BEGIN_SRC nim
+   let 
+     f = 1
+     d = 2
+     e = 2
+     g = d
+   #+END_SRC
+   performs a
+   #+BEGIN_SRC nim
+   e = e - 1
+   g = e - b
+   #+END_SRC
+   But the condition check to set f == 0 is the following:
+   g == b, 
+   while 
+   g = d * e
+   So if d * e == b, we set f to 0
+
+   So in the inner loop the variables go from
+   e = 2 -> -90100
+   d unchanged
+   
+the next outer loop changes the variables as:
+  d = 2 -> -90100
+  while for each d, the inner most loop is called which again
+    e = 2 -> -90100
+    
+
+So basically something like the following:
+#+BEGIN_SRC nim
+var f = 2
+var h = 0
+for b in countdown(-90100, 107100, 17):
+  for d in countdown(2, -90100, 1):
+    for e in countdown(2, -90100, 1):
+      echo b, " ", d, " ", e
+      if d * e == b:
+        f = 0
+        dec h
+
+echo h
+
+#+END_SRC
+
+#+RESULTS:
+: 0
+  
+
+#+BEGIN_SRC emacs-lisp
+(- 9900 100000)
+(- -90100 17000)
+(- 4 -90100)
+(/ 90100 2)
+#+END_SRC
+
+#+RESULTS:
+: 45050
